@@ -4,10 +4,15 @@ const cors = require("cors");
 // const bcrypt = require("bcrypt");
 const Usersmodel = require('./models/users');
 const app = express();
+
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect("mongodb+srv://zunaedsazzad00:Mzs484931@cluster0.qasulof.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongoose.connect("mongodb+srv://xunji:xunji@cluster0.jifefv0.mongodb.net/Storygram_DB?retryWrites=true&w=majority&appName=Cluster0", {
+    useNewUrlParser: true, 
+    useUnifiedTopology: true
+}).then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 app.post('/register', async (req, res) => {
   try {
@@ -16,6 +21,7 @@ app.post('/register', async (req, res) => {
       return res.status(400).json({ message: "Passwords do not match" });
     }
     // const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("hey")
     const user = new Usersmodel({ name, email, password });
     await user.save();
     res.status(201).json(user);
@@ -24,6 +30,6 @@ app.post('/register', async (req, res) => {
   }
 });
 
-app.listen(3002, () => {
-  console.log("Server is running on port 3001");
+app.listen(3000, () => {
+  console.log("Server is running on port 3001"); // The port here should match the one in app.listen
 });

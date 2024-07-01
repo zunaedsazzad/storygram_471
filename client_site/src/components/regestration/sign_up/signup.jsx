@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import {Link} from 'react-router-dom';
-import axios from 'axios'
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const Signup = () => {
     const [name, setName] = useState('');
@@ -9,12 +9,11 @@ const Signup = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
 
     const handleSignup = (e) => {
-        e.preventDefault()
-        console.log(name,email,password,confirmPassword)
-        axios.post('http://localhost:3001/register',{name,email,password, confirmPassword}).then(result=>console.log(result))
-
-
-
+        e.preventDefault();
+        console.log(name, email, password, confirmPassword);
+        axios.post('http://localhost:3000/register', { name, email, password, confirmPassword })
+            .then(result => console.log(result))
+            .catch(error => console.error('There was an error!', error)); // It's good practice to handle errors
     };
 
     return (
@@ -25,9 +24,7 @@ const Signup = () => {
             <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
             <input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
             <button onClick={handleSignup}>Sign Up</button>
-            
             <Link to={'/login'}><button>Sign in</button></Link>
-            
         </div>
     );
 };
