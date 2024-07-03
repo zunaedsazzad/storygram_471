@@ -8,27 +8,33 @@ const Signup = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
 
-    const handleSignup = (e) => {
+    const handleSignup = async (e) => {
         e.preventDefault();
-        console.log(name, email, password, confirmPassword);
-        axios.post('http://localhost:3000/register', { name, email, password, confirmPassword })
-            .then(result => {
-                console.log(result);
-                setMessage('Please check your email to verify your account.');
-            })
-            .catch(error => console.error('There was an error!', error));
+        try {
+            const response = await axios.post('http://localhost:3500/register', { name, email, password, confirmPassword });
+            setMessage('Please check your email to verify your account.');
+            setError('');
+        } catch (error) {
+            console.error('There was an error!', error);
+            setError(error.response?.data?.message || 'An error occurred during registration.');
+            setMessage('');
+        }
     };
 
     return (
         <div>
             <h2>Signup</h2>
             {message && <p>{message}</p>}
-            <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
-            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            <input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-            <button onClick={handleSignup}>Sign Up</button>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <form onSubmit={handleSignup}>
+                <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+                <button type="submit">Sign Up</button>
+            </form>
             <Link to={'/login'}><button>Sign in</button></Link>
         </div>
     );

@@ -1,85 +1,117 @@
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
+const bcrypt = require('bcrypt');
 const Usersmodel = require('./models/users');
 const app = express();
+
+require('dotenv').config();
 
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect("mongodb+srv://zunaedsazzad00:Mzs484931@cluster0.qasulof.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
+mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Configure nodemailer
 const transporter = nodemailer.createTransport({
     service: 'gmail',
+    host:"smtp.gmail.com",
+    port:587,
     auth: {
-        user: 'zunaed.sazzad.tonay@g.bracu.ac.bd',
-        pass: '#Mzs48493131'
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
-// Secret key for JWT
-const secret = 'xunji';
+const secret = process.env.JWT_SECRET;
 
-// Register route
 app.post('/register', async (req, res) => {
     try {
         const { name, email, password, confirmPassword } = req.body;
         if (password !== confirmPassword) {
             return res.status(400).json({ message: "Passwords do not match" });
         }
-        const user = new Usersmodel({ name, email, password });
+
+        const userExists = await Usersmodel.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({ message: "Email already registered" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = new Usersmodel({ name, email, password: hashedPassword });
         await user.save();
 
-        // Generate a token
         const token = jwt.sign({ email }, secret, { expiresIn: '1h' });
 
-        // Send verification email
         const mailOptions = {
-            from: 'zunaed.sazzad.tonay@g.bracu.ac.bd',
+            from: process.env.EMAIL_USER,
             to: email,
             subject: 'Email Verification',
-            text: `Please verify your email by clicking the following link: http://localhost:3000/verify/${token}`
+            text: `Please verify your email by clicking the following link: http://localhost:3500/verify/${token}`
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
+                console.error('Error sending email:', error);
                 return res.status(500).json({ message: 'Error sending email' });
             } else {
+                console.log('Email sent:', info.response);
                 res.status(201).json({ message: 'Verification email sent', user });
             }
         });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error('Error during registration:', err);
+        res.status(500).json({ message: 'An error occurred during registration.', error: err.message });
     }
 });
 
-// Verify route
 app.get('/verify/:token', async (req, res) => {
+    console.log('Verification request received');
     try {
         const { token } = req.params;
         const decoded = jwt.verify(token, secret);
+        
+        console.log('Token decoded:', decoded);
 
         const user = await Usersmodel.findOne({ email: decoded.email });
         if (!user) {
+            console.error('No user found for the email:', decoded.email);
             return res.status(400).json({ message: 'Invalid token' });
+        }
+
+        console.log('User found:', user);
+
+        if (user.isVerified) {
+            console.log('User already verified:', user.email);
+            return res.status(400).json({ message: 'User already verified' });
         }
 
         user.isVerified = true;
         await user.save();
 
+        console.log('User verified:', user);
+
         res.status(200).json({ message: 'Email verified successfully' });
     } catch (err) {
-        res.status(500).json({ message: 'Verification failed' });
+        if (err.name === 'TokenExpiredError') {
+            console.error('Token has expired');
+            return res.status(400).json({ message: 'Token has expired' });
+        } else if (err.name === 'JsonWebTokenError') {
+            console.error('Invalid token');
+            return res.status(400).json({ message: 'Invalid token' });
+        }
+        console.error('Error during email verification:', err);
+        res.status(500).json({ message: 'Verification failed', error: err.message });
     }
 });
 
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
+
+app.listen(3500, () => {
+    console.log("Server is running on port 3500");
 });
