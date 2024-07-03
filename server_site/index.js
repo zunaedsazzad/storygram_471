@@ -53,7 +53,7 @@ app.post('/register', async (req, res) => {
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'Email Verification',
-            text: `Please verify your email by clicking the following link: http://localhost:3500/verify/${token}`
+            text: `Please verify your email by clicking the following link: http://localhost:3000/verified/${token}`
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
@@ -89,15 +89,18 @@ app.get('/verify/:token', async (req, res) => {
 
         if (user.isVerified) {
             console.log('User already verified:', user.email);
-            return res.status(400).json({ message: 'User already verified' });
+            return res.status(400).json({ message: 'User already verified', user: user.email });
         }
 
         user.isVerified = true;
         await user.save();
 
+        
+
         console.log('User verified:', user);
 
-        res.status(200).json({ message: 'Email verified successfully' });
+        res.status(200).json({ message: 'Email verified successfully', user: user.email, token: token });
+
     } catch (err) {
         if (err.name === 'TokenExpiredError') {
             console.error('Token has expired');
