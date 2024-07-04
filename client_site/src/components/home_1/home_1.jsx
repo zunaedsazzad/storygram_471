@@ -28,9 +28,22 @@ const EmailVerification = () => {
     }, [token]);
 
     return (
-        <div>
-            <h1>Email Verification Done</h1>
+        <div            style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '30vh',
+            textAlign: 'center',
+        }}
+    >
+            <h1>Email Verification</h1>
             <p>{message}</p>
+            <button     style={{
+                        marginTop: '40px',
+ 
+                         // Add more gap above the button
+                    }}>Edit Profile</button>
         </div>
     );
 };

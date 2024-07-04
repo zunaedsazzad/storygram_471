@@ -31,9 +31,37 @@ const transporter = nodemailer.createTransport({
 
 const secret = process.env.JWT_SECRET;
 
+
+app.post('/sign_in', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await Usersmodel.findOne({ email });
+
+        if (!user) {
+            console.error('User not found for email:', email);
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (isPasswordValid & user.isVerified == true) {
+            const token = jwt.sign({ email, _id: user._id }, secret, { expiresIn: '1h' });
+            return res.status(200).json({ token: token });
+        } else {
+            console.error('Incorrect password for email:', email);
+            return res.status(400).json({ message: "Incorrect password" });
+        }
+    } catch (err) {
+        console.error('Error during sign in:', err.message);
+        res.status(500).json({ message: 'An error occurred during sign in.', error: err.message });
+    }
+});
+
+
+
 app.post('/register', async (req, res) => {
     try {
-        const { name, email, password, confirmPassword } = req.body;
+        const {name, email, password, confirmPassword } = req.body;
         if (password !== confirmPassword) {
             return res.status(400).json({ message: "Passwords do not match" });
         }

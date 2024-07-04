@@ -24,20 +24,73 @@ const Signup = () => {
     };
 
     return (
-        <div>
+        <div
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+                textAlign: 'center',
+            }}
+        >
             <h2>Signup</h2>
             {message && <p>{message}</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            <form onSubmit={handleSignup}>
-                <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                <input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-                <button type="submit">Sign Up</button>
+            <form
+                onSubmit={handleSignup}
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    width: '300px',
+                }}
+            >
+                <input
+                    type="text"
+                    placeholder="Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    style={{ padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
+                />
+                <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    style={{ padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    style={{ padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
+                />
+                <input
+                    type="password"
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    style={{ padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
+                />
+                <button
+                    type="submit"
+                    style={{ padding: '10px', borderRadius: '5px', backgroundColor:"greenyellow", border: 'none', cursor: 'pointer' }}
+                >
+                    Sign Up
+                </button>
             </form>
-            <Link to={'/login'}><button>Sign in</button></Link>
+            <Link to={'/signin'}>
+                <button style={{ marginTop: '10px', padding: '10px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}>
+                    Sign in
+                </button>
+            </Link>
         </div>
     );
 };
-
 export default Signup;
